@@ -1,18 +1,12 @@
-#include <QGuiApplication>
-#include <QQmlApplicationEngine>
+#include "mainwindow.h"
+
+#include <QApplication>
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
-
-    QQmlApplicationEngine engine;
-    QObject::connect(
-        &engine,
-        &QQmlApplicationEngine::objectCreationFailed,
-        &app,
-        []() { QCoreApplication::exit(-1); },
-        Qt::QueuedConnection);
-    engine.loadFromModule("AirTrafficControlTower", "Main");
-
-    return app.exec();
+	qputenv("QT_LOGGING_RULES", "qt.qpa.*=false");
+	QApplication a(argc, argv);
+	MainWindow w;
+	w.show();
+	return a.exec();
 }
