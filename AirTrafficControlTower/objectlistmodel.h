@@ -24,6 +24,7 @@ public:
 	QHash<int, QByteArray> roleNames() const override;
 
 	void addObject(Object *obj);
+	void updateObject(int index, Object *obj);
 
 private:
 	QList<Object *> m_objects;

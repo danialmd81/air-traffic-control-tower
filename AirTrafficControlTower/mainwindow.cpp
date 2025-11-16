@@ -21,26 +21,6 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->quickWidget->setSource(QUrl("qrc:/main.qml"));
 
 	connect(radarReceiver, &RadarDataReceiver::objectReceived, this, &MainWindow::onObjectReceived);
-
-	// Add a test object to verify the map is working
-	Object *testObj = new Object();
-	testObj->setId("TEST001");
-	testObj->setType("airplane");
-	testObj->setName("Test Airplane");
-	testObj->setLatitude(32.4279);
-	testObj->setLongitude(53.6880);
-	testObj->setSourceAirport("Test Airport");
-	testObj->setDestinationAirport("Test Destination");
-	testObj->setStatus("active");
-
-	// Add to both list and model
-	onObjectReceived(testObj);
-
-	// TEST
-	this->ipAddress = "127.0.0.1";
-
-	// TEST
-	port = 8080;
 }
 
 MainWindow::~MainWindow()
@@ -94,16 +74,46 @@ void MainWindow::on_actionStart_triggered()
 
 void MainWindow::onObjectReceived(Object *obj)
 {
-	if (obj)
-	{
-		QListWidgetItem *item = new QListWidgetItem(obj->getType(), ui->listWidget);
+	if (!obj)
+		return;
 
+	// Check if object with this ID already exists in the model
+	QString objId = obj->getId();
+	int existingIndex = -1;
+	for (int i = 0; i < objectListModel->rowCount(); ++i)
+	{
+		QModelIndex idx = objectListModel->index(i, 0);
+		QVariant idVar = objectListModel->data(idx, ObjectListModel::IdRole);
+		if (idVar.toString() == objId)
+		{
+			existingIndex = i;
+			break;
+		}
+	}
+
+	if (existingIndex == -1)
+	{
+		// add to model and list
+		QListWidgetItem *item = new QListWidgetItem(obj->getType(), ui->listWidget);
 		constexpr int ObjectPointerRole = Qt::UserRole + 1;
 		item->setData(ObjectPointerRole, QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
-
 		objectListModel->addObject(obj);
-
 		ui->listWidget->addItem(item);
+	}
+	else
+	{
+		// update its data in the model
+		objectListModel->updateObject(existingIndex, obj);
+		// update QListWidget item text if needed
+		QListWidgetItem *item = ui->listWidget->item(existingIndex);
+		if (item)
+		{
+			item->setText(obj->getType());
+			constexpr int ObjectPointerRole = Qt::UserRole + 1;
+			item->setData(ObjectPointerRole, QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+		}
+		// Delete the incoming obj to avoid memory leak, since model already owns the old one
+		delete obj;
 	}
 }
 
