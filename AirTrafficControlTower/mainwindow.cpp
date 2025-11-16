@@ -3,16 +3,42 @@
 
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QQuickItem>
+#include <QQuickWidget>
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
 	, ui(new Ui::MainWindow)
 	, radarReceiver(new RadarDataReceiver(this))
+	, objectListModel(new ObjectListModel(this))
 {
 	ui->setupUi(this);
 	ui->statusbar->showMessage(tr("Not connected"), 500);
 
+	ui->quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+	ui->quickWidget->setSource(QUrl("qrc:/main.qml"));
+
 	connect(radarReceiver, &RadarDataReceiver::objectReceived, this, &MainWindow::onObjectReceived);
+
+	// Add a test object to verify the map is working
+	Object *testObj = new Object();
+	testObj->setId("TEST001");
+	testObj->setType("airplane");
+	testObj->setName("Test Airplane");
+	testObj->setLatitude(32.4279);
+	testObj->setLongitude(53.6880);
+	testObj->setSourceAirport("Test Airport");
+	testObj->setDestinationAirport("Test Destination");
+	testObj->setStatus("active");
+
+	// Add to both list and model
+	onObjectReceived(testObj);
+
+	// TEST
+	this->ipAddress = "127.0.0.1";
+
+	// TEST
+	port = 8080;
 }
 
 MainWindow::~MainWindow()
@@ -79,6 +105,34 @@ void MainWindow::onObjectReceived(Object *obj)
 		item->setData(ObjectPointerRole, QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
 
 		ui->listWidget->addItem(item);
+
+		// Add to ObjectListModel (for QML map)
+		objectListModel->addObject(obj);
+
+		QQuickWidget *quickWidget = ui->quickWidget;
+		QObject *rootObject = quickWidget->rootObject();
+		rootObject->setProperty("latitude", obj->getLatitude());
+		rootObject->setProperty("longitude", obj->getLongitude());
+
+		// Set icon based on object type
+		QString iconPath;
+		if (obj->getType() == "airplane")
+		{
+			iconPath = "qrc:/Image/airplane.png";
+		}
+		else if (obj->getType() == "jet")
+		{
+			iconPath = "qrc:/Image/jet.png";
+		}
+		else if (obj->getType() == "helicopter")
+		{
+			iconPath = "qrc:/Image/helicopter.png";
+		}
+		else
+		{
+			iconPath = "qrc:/Image/airplane.png"; // default
+		}
+		rootObject->setProperty("icon", iconPath);
 	}
 }
 
@@ -102,8 +156,41 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 			details += tr("<b>Altitude:</b> %1<br>").arg(obj->getAltitude());
 			details += tr("<b>Status:</b> %1<br>").arg(obj->getStatus());
 			details += tr("<b>Timestamp:</b> %1<br>").arg(obj->getTimestamp().toString(Qt::ISODate));
-
 			ui->textBrowser->setHtml(details);
+
+			QObject *rootObject = ui->quickWidget->rootObject();
+			if (rootObject)
+			{
+				double latitude = obj->getLatitude();
+				double longitude = obj->getLongitude();
+
+				rootObject->setProperty("mapLatitude", latitude);
+				rootObject->setProperty("mapLongitude", longitude);
+				rootObject->setProperty("latitude", latitude);
+				rootObject->setProperty("longitude", longitude);
+
+				qDebug() << latitude << " " << longitude;
+
+				// Set icon based on object type
+				QString iconPath;
+				if (obj->getType() == "airplane")
+				{
+					iconPath = "qrc:/Image/airplane.png";
+				}
+				else if (obj->getType() == "jet")
+				{
+					iconPath = "qrc:/Image/jet.png";
+				}
+				else if (obj->getType() == "helicopter")
+				{
+					iconPath = "qrc:/Image/helicopter.png";
+				}
+				else
+				{
+					iconPath = "qrc:/Image/airplane.png"; // default
+				}
+				rootObject->setProperty("icon", iconPath);
+			}
 		}
 	}
 }

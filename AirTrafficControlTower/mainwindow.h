@@ -1,11 +1,11 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include <QListWidgetItem>
+#include <QListWidget>
 #include <QMainWindow>
-#include <QQuickView>
 
 #include "object.h"
+#include "objectlistmodel.h"
 #include "radardatareceiver.h"
 
 QT_BEGIN_NAMESPACE
@@ -39,5 +39,7 @@ private:
 
 	QString ipAddress;
 	int port;
+
+	ObjectListModel *objectListModel;
 };
 #endif // MAINWINDOW_H

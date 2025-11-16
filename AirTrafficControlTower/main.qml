@@ -3,57 +3,76 @@ import QtPositioning
 import QtLocation
 
 Item {
+    id: root
+    objectName: "MapView"
 
     Plugin {
         id: mapPlugin
         name: "osm"
         PluginParameter {
-            name: "osm.mapping.providersrepository.address"
+            name: "osm.useragent"
+            value: "AirTrafficControlTower"
+        }
+        // Use the official OSM tile server for general use
+        PluginParameter {
+            name: "osm.mapping.host"
             value: "https://tile.openstreetmap.org/"
         }
-        // You can use other public OSM tile servers, e.g.:
-        // value: "https://tile.openstreetmap.org/"
-
+        // Copyright notice for OSM
+        PluginParameter {
+            name: "osm.mapping.copyright"
+            value: "© OpenStreetMap contributors"
+        }
+        // Optional: Use public OSRM routing server (or leave default)
+        PluginParameter {
+            name: "osm.routing.host"
+            value: "https://router.project-osrm.org/route/v1"
+        }
+        // Optional: Use Nominatim for geocoding (or leave default)
+        PluginParameter {
+            name: "osm.geocoding.host"
+            value: "https://nominatim.openstreetmap.org/"
+        }
     }
+
+    // Properties for selected object
+    property double mapLatitude: 32.4279
+    property double mapLongitude: 53.6880
+    property double latitude: 0
+    property double longitude: 0
+    property string icon: "qrc:/Image/airplane.png"
 
     Map {
         id: map
         plugin: mapPlugin
         anchors.fill: parent
-        // center: QtPositioning.coordinate(59.91, 10.75) // Oslo
-        zoomLevel: 14
-        // property geoCoordinate startCentroid
+        center: QtPositioning.coordinate(root.mapLatitude, root.mapLongitude)
 
-        // PinchHandler {
-        //     id: pinch
-        //     target: null
-        //     onActiveChanged: if (active) {
-        //         map.startCentroid = map.toCoordinate(pinch.centroid.position, false);
-        //     }
-        //     onScaleChanged: delta => {
-        //         map.zoomLevel += Math.log2(delta);
-        //         map.alignCoordinateToPoint(map.startCentroid, pinch.centroid.position);
-        //     }
-        //     onRotationChanged: delta => {
-        //         map.bearing -= delta;
-        //         map.alignCoordinateToPoint(map.startCentroid, pinch.centroid.position);
-        //     }
-        //     grabPermissions: PointerHandler.TakeOverForbidden
-        // }
+        MapQuickItem {
+            anchorPoint.x: 16
+            anchorPoint.y: 16
+            coordinate: QtPositioning.coordinate(root.latitude, root.longitude)
+
+            sourceItem: Image {
+                source: root.icon
+                width: 32
+                height: 32
+            }
+        }
+
         WheelHandler {
             id: wheel
-            // workaround for QTBUG-87646 / QTBUG-112394 / QTBUG-112432:
-            // Magic Mouse pretends to be a trackpad but doesn't work with PinchHandler
-            // and we don't yet distinguish mice and trackpads on Wayland either
             acceptedDevices: Qt.platform.pluginName === "cocoa" || Qt.platform.pluginName === "wayland" ? PointerDevice.Mouse | PointerDevice.TouchPad : PointerDevice.Mouse
             rotationScale: 1 / 120
             property: "zoomLevel"
         }
+
         DragHandler {
             id: drag
             target: null
             onTranslationChanged: delta => map.pan(-delta.x, -delta.y)
         }
+
         Shortcut {
             enabled: map.zoomLevel < map.maximumZoomLevel
             sequence: StandardKey.ZoomIn
