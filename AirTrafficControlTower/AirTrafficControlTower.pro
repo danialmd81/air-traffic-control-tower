@@ -37,7 +37,7 @@ DISTFILES += \
     main.qml
 
 RESOURCES += \
-    modules.qrc
+    resource.qrc
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../RadarDataReceiver/build/Desktop_Qt_6_9_3-Release/release/ -lRadarDataReceiver
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../RadarDataReceiver/build/Desktop_Qt_6_9_3-Release/debug/ -lRadarDataReceiver
