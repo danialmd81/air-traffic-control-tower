@@ -38,9 +38,6 @@ Item {
     // Properties for selected object
     property double mapLatitude: 32.4279
     property double mapLongitude: 53.6880
-    property double latitude: 0
-    property double longitude: 0
-    property string icon: "qrc:/Image/airplane.png"
 
     Map {
         id: map
@@ -48,15 +45,17 @@ Item {
         anchors.fill: parent
         center: QtPositioning.coordinate(root.mapLatitude, root.mapLongitude)
 
-        MapQuickItem {
-            anchorPoint.x: 16
-            anchorPoint.y: 16
-            coordinate: QtPositioning.coordinate(root.latitude, root.longitude)
-
-            sourceItem: Image {
-                source: root.icon
-                width: 32
-                height: 32
+        MapItemView {
+            model: objectListModel
+            delegate: MapQuickItem {
+                coordinate: QtPositioning.coordinate(latitude, longitude)
+                anchorPoint.x: 16
+                anchorPoint.y: 16
+                sourceItem: Image {
+                    source: icon
+                    width: 32
+                    height: 32
+                }
             }
         }
 

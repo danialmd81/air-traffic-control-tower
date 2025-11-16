@@ -17,13 +17,15 @@ SOURCES += \
     FlyingObjects/helicopter.cpp \
     FlyingObjects/jet.cpp \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp  \
+    objectlistmodel.cpp
 
 HEADERS += \
     FlyingObjects/airplane.h \
     FlyingObjects/helicopter.h \
     FlyingObjects/jet.h \
-    mainwindow.h
+    mainwindow.h  \
+    objectlistmodel.h
 
 FORMS += \
     mainwindow.ui

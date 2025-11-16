@@ -3,6 +3,8 @@
 
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QQmlContext>
+#include <QQmlEngine>
 #include <QQuickItem>
 #include <QQuickWidget>
 
@@ -15,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->setupUi(this);
 	ui->statusbar->showMessage(tr("Not connected"), 500);
 
-	ui->quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+	ui->quickWidget->engine()->rootContext()->setContextProperty("objectListModel", objectListModel);
 	ui->quickWidget->setSource(QUrl("qrc:/main.qml"));
 
 	connect(radarReceiver, &RadarDataReceiver::objectReceived, this, &MainWindow::onObjectReceived);
@@ -54,7 +56,6 @@ void MainWindow::on_actionSet_IP_triggered()
 		"127.0.0.1", &ok);
 	if (ok && !ip.isEmpty())
 	{
-		// Store or use the IP as needed, e.g.:
 		this->ipAddress = ip;
 		ui->statusbar->showMessage(tr("Radar IP set to %1").arg(ip), 500);
 	}
@@ -74,14 +75,12 @@ void MainWindow::on_actionSet_Port_triggered()
 
 void MainWindow::on_actionStart_triggered()
 {
-	// Start connection to radar using stored IP and port
 	if (ipAddress.isEmpty() || port == 0)
 	{
 		QMessageBox::warning(this, tr("Error"), tr("Please set both IP address and port before starting."));
 		return;
 	}
 
-	// Here you would add the code to initiate the connection to the radar
 	ui->statusbar->showMessage(tr("Connecting to radar at %1:%2...").arg(ipAddress).arg(port), 500);
 	if (radarReceiver->connectToRadar(ipAddress, port))
 	{
@@ -97,42 +96,14 @@ void MainWindow::onObjectReceived(Object *obj)
 {
 	if (obj)
 	{
-		// Display text (e.g., type or callsign)
 		QListWidgetItem *item = new QListWidgetItem(obj->getType(), ui->listWidget);
 
-		// Store the Object* pointer in the item using a custom role
 		constexpr int ObjectPointerRole = Qt::UserRole + 1;
 		item->setData(ObjectPointerRole, QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
 
-		ui->listWidget->addItem(item);
-
-		// Add to ObjectListModel (for QML map)
 		objectListModel->addObject(obj);
 
-		QQuickWidget *quickWidget = ui->quickWidget;
-		QObject *rootObject = quickWidget->rootObject();
-		rootObject->setProperty("latitude", obj->getLatitude());
-		rootObject->setProperty("longitude", obj->getLongitude());
-
-		// Set icon based on object type
-		QString iconPath;
-		if (obj->getType() == "airplane")
-		{
-			iconPath = "qrc:/Image/airplane.png";
-		}
-		else if (obj->getType() == "jet")
-		{
-			iconPath = "qrc:/Image/jet.png";
-		}
-		else if (obj->getType() == "helicopter")
-		{
-			iconPath = "qrc:/Image/helicopter.png";
-		}
-		else
-		{
-			iconPath = "qrc:/Image/airplane.png"; // default
-		}
-		rootObject->setProperty("icon", iconPath);
+		ui->listWidget->addItem(item);
 	}
 }
 
@@ -145,7 +116,6 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 		if (obj)
 		{
 			ui->label->setText(tr(obj->getName().toStdString().c_str()));
-			// Show details in the QTextBrowser (right panel)
 			QString details;
 			details += tr("<b>ID:</b> %1<br>").arg(obj->getId());
 			details += tr("<b>Type:</b> %1<br>").arg(obj->getType());
@@ -166,30 +136,6 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 
 				rootObject->setProperty("mapLatitude", latitude);
 				rootObject->setProperty("mapLongitude", longitude);
-				rootObject->setProperty("latitude", latitude);
-				rootObject->setProperty("longitude", longitude);
-
-				qDebug() << latitude << " " << longitude;
-
-				// Set icon based on object type
-				QString iconPath;
-				if (obj->getType() == "airplane")
-				{
-					iconPath = "qrc:/Image/airplane.png";
-				}
-				else if (obj->getType() == "jet")
-				{
-					iconPath = "qrc:/Image/jet.png";
-				}
-				else if (obj->getType() == "helicopter")
-				{
-					iconPath = "qrc:/Image/helicopter.png";
-				}
-				else
-				{
-					iconPath = "qrc:/Image/airplane.png"; // default
-				}
-				rootObject->setProperty("icon", iconPath);
 			}
 		}
 	}

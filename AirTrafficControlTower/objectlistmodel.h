@@ -1,0 +1,32 @@
+#ifndef OBJECTLISTMODEL_H
+#define OBJECTLISTMODEL_H
+
+#include <QAbstractListModel>
+
+#include "object.h"
+
+class ObjectListModel : public QAbstractListModel
+{
+	Q_OBJECT
+public:
+	enum ObjectRoles
+	{
+		IdRole = Qt::UserRole + 1,
+		LatitudeRole,
+		LongitudeRole,
+		IconRole
+	};
+
+	explicit ObjectListModel(QObject *parent = nullptr);
+
+	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	QVariant data(const QModelIndex &index, int role) const override;
+	QHash<int, QByteArray> roleNames() const override;
+
+	void addObject(Object *obj);
+
+private:
+	QList<Object *> m_objects;
+};
+
+#endif // OBJECTLISTMODEL_H
