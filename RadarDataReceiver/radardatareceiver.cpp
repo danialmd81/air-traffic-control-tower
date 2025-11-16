@@ -112,9 +112,7 @@ Object *RadarDataReceiver::parsePacket(const QByteArray &packet)
 	obj->setSourceAirport(airportIdToName.value(srcAirport, QString("Unknown (%1)").arg(srcAirport)));
 	obj->setDestinationAirport(airportIdToName.value(dstAirport, QString("Unknown (%1)").arg(dstAirport)));
 	obj->setLatitude(latitude);
-	obj->setLatitudeFactor(latFactor);
 	obj->setLongitude(longitude);
-	obj->setLongitudeFactor(lonFactor);
 	obj->setAltitude(altitude);
 	obj->setStatus("active");
 	obj->setTimestamp(QDateTime::currentDateTimeUtc());

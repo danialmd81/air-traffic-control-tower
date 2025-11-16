@@ -15,9 +15,7 @@ public:
 	QString getSourceAirport() const { return sourceAirport; }
 	QString getDestinationAirport() const { return destinationAirport; }
 	double getLatitude() const { return latitude; }
-	double getLatitudeFactor() const { return latitudeFactor; }
 	double getLongitude() const { return longitude; }
-	double getLongitudeFactor() const { return longitudeFactor; }
 	double getAltitude() const { return altitude; }
 	int getCapacity() const { return capacity; }
 	int getRange() const { return range; }
@@ -31,9 +29,7 @@ public:
 	void setSourceAirport(const QString &value) { sourceAirport = value; }
 	void setDestinationAirport(const QString &value) { destinationAirport = value; }
 	void setLatitude(double value) { latitude = value; }
-	void setLatitudeFactor(double value) { latitudeFactor = value; }
 	void setLongitude(double value) { longitude = value; }
-	void setLongitudeFactor(double value) { longitudeFactor = value; }
 	void setAltitude(double value) { altitude = value; }
 	void setCapacity(int value) { capacity = value; }
 	void setRange(int value) { range = value; }
@@ -47,9 +43,7 @@ private:
 	QString sourceAirport; // Source airport
 	QString destinationAirport; // Destination airport
 	double latitude; // Latitude (degrees)
-	double latitudeFactor; // Latitude Factor (degrees)
 	double longitude; // Longitude (degrees)
-	double longitudeFactor; // Longitude Factor (degrees)
 	double altitude; // Altitude (meters or feet)
 	int capacity; // Passenger or cargo capacity
 	int range; // Range (nautical miles or km)

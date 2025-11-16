@@ -5,13 +5,16 @@ import time
 HOST = "127.0.0.1"
 PORT = 8080
 
+# Iran approximate center
+IRAN_LAT = 32.4279
+IRAN_LON = 53.6880
+
 
 def random_packet(valid=True):
     packet = bytearray()
     if valid:
         packet += bytes.fromhex("A5A5A5A5")  # Header
     else:
-        # Corrupt header or use random bytes
         packet += (
             random.randbytes(4)
             if hasattr(random, "randbytes")
@@ -89,11 +92,15 @@ def random_packet(valid=True):
         ]
     )
     # Latitude, Latitude Factor
-    packet += random.randint(0, 2**32 - 1).to_bytes(4, "little")
-    packet += random.randint(1, 1000).to_bytes(2, "little")
+    lat_factor = random.randint(1000, 10000)
+    lat = int((IRAN_LAT + random.uniform(-5, 5)) * lat_factor)
+    packet += lat.to_bytes(4, "little", signed=True)
+    packet += lat_factor.to_bytes(2, "little")
     # Longitude, Longitude Factor
-    packet += random.randint(0, 2**32 - 1).to_bytes(4, "little")
-    packet += random.randint(1, 1000).to_bytes(2, "little")
+    lon_factor = random.randint(1000, 10000)
+    lon = int((IRAN_LON + random.uniform(-5, 5)) * lon_factor)
+    packet += lon.to_bytes(4, "little", signed=True)
+    packet += lon_factor.to_bytes(2, "little")
     # Altitude
     packet += random.randint(0, 50000).to_bytes(4, "little")
     # Flight ID
@@ -104,7 +111,6 @@ def random_packet(valid=True):
     if valid:
         packet += bytes.fromhex("55555555")  # Footer
     else:
-        # Corrupt footer or use random bytes
         packet += (
             random.randbytes(4)
             if hasattr(random, "randbytes")
@@ -120,7 +126,7 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     conn, addr = s.accept()
     with conn:
         print(f"Connected by {addr}")
-        for i in range(20):
+        for i in range(50):
             valid = random.choice([True, False])
             pkt = random_packet(valid)
             conn.sendall(pkt)
