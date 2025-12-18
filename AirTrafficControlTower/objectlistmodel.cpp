@@ -30,6 +30,8 @@ QVariant ObjectListModel::data(const QModelIndex &index, int role) const
 			if (obj->getType() == "jet") return "qrc:/Image/jet.png";
 			if (obj->getType() == "helicopter") return "qrc:/Image/helicopter.png";
 			return "qrc:/Image/airplane.png";
+		case AzimuthRole:
+			return obj->azimuthToDestination();
 	}
 	return QVariant();
 }
@@ -40,7 +42,8 @@ QHash<int, QByteArray> ObjectListModel::roleNames() const
 		{ IdRole, "id" },
 		{ LatitudeRole, "latitude" },
 		{ LongitudeRole, "longitude" },
-		{ IconRole, "icon" }
+		{ IconRole, "icon" },
+		{ AzimuthRole, "azimuth" }
 	};
 }
 

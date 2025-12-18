@@ -3,7 +3,7 @@
 
 #include <QAbstractListModel>
 
-#include "object.h"
+#include "RadarDataReceiver/object.h"
 
 class ObjectListModel : public QAbstractListModel
 {
@@ -14,7 +14,8 @@ public:
 		IdRole = Qt::UserRole + 1,
 		LatitudeRole,
 		LongitudeRole,
-		IconRole
+		IconRole,
+		AzimuthRole
 	};
 
 	explicit ObjectListModel(QObject *parent = nullptr);

@@ -65,6 +65,7 @@ Item {
                     source: icon
                     width: 32
                     height: 32
+                    rotation: azimuth
                 }
             }
         }

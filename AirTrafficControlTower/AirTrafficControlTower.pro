@@ -13,18 +13,14 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    FlyingObjects/airplane.cpp \
-    FlyingObjects/helicopter.cpp \
-    FlyingObjects/jet.cpp \
     main.cpp \
     mainwindow.cpp  \
+    RadarDataReceiver/object.cpp \
     objectlistmodel.cpp
 
 HEADERS += \
-    FlyingObjects/airplane.h \
-    FlyingObjects/helicopter.h \
-    FlyingObjects/jet.h \
     mainwindow.h  \
+    RadarDataReceiver/object.h \
     objectlistmodel.h
 
 FORMS += \
@@ -41,9 +37,9 @@ DISTFILES += \
 RESOURCES += \
     resource.qrc
 
-win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../RadarDataReceiver/build/Desktop_Qt_6_9_3_MinGW_64_bit-Release/release/ -lRadarDataReceiver
-else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../RadarDataReceiver/build/Desktop_Qt_6_9_3_MinGW_64_bit-Debug/debug/ -lRadarDataReceiver
-else:unix: LIBS += -L$$PWD/../RadarDataReceiver/build/Desktop_Qt_6_9_3-Release/ -lRadarDataReceiver
+win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/RadarDataReceiver/release/ -lRadarDataReceiver
+else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/RadarDataReceiver/debug/ -lRadarDataReceiver
+else:unix: LIBS += -L$$OUT_PWD/RadarDataReceiver/ -lRadarDataReceiver
 
-INCLUDEPATH += $$PWD/../RadarDataReceiver
-DEPENDPATH += $$PWD/../RadarDataReceiver
+INCLUDEPATH += $$PWD/RadarDataReceiver
+DEPENDPATH += $$PWD/RadarDataReceiver
