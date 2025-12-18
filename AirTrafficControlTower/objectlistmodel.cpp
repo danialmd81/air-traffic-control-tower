@@ -51,6 +51,13 @@ void ObjectListModel::addObject(Object *obj)
 	endInsertRows();
 }
 
+Object *ObjectListModel::getObject(int index) const
+{
+	if (index < 0 || index >= m_objects.size())
+		return nullptr;
+	return m_objects.at(index);
+}
+
 void ObjectListModel::updateObject(int index, Object *obj)
 {
 	if (index < 0 || index >= m_objects.size() || !obj)

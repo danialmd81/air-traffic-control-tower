@@ -110,7 +110,8 @@ void MainWindow::onObjectReceived(Object *obj)
 		{
 			item->setText(obj->getType());
 			constexpr int ObjectPointerRole = Qt::UserRole + 1;
-			item->setData(ObjectPointerRole, QVariant::fromValue(reinterpret_cast<quintptr>(obj)));
+			Object *modelObj = objectListModel->getObject(existingIndex); // Use model-owned pointer
+			item->setData(ObjectPointerRole, QVariant::fromValue(reinterpret_cast<quintptr>(modelObj)));
 		}
 		// Delete the incoming obj to avoid memory leak, since model already owns the old one
 		delete obj;

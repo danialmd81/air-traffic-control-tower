@@ -45,6 +45,16 @@ Item {
         anchors.fill: parent
         center: QtPositioning.coordinate(root.mapLatitude, root.mapLongitude)
 
+        // onSupportedMapTypesChanged: {
+        //         for (var i = 0; i < supportedMapTypes.length; ++i) {
+        //             if (supportedMapTypes[i].name === "Cycle Map") {
+        //                 console.log("MapType:", supportedMapTypes[i].name, i)
+        //                 break
+        //             }
+        //         }
+        //     }
+        activeMapType: supportedMapTypes[3]
+
         MapItemView {
             model: objectListModel
             delegate: MapQuickItem {
