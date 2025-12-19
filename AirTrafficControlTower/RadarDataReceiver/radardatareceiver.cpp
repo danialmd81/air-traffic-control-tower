@@ -26,21 +26,6 @@ static QMap<uint8_t, QString> airportIdToName = {
 	{ 0x3c, "Luxor (Egypt)" }
 };
 
-// Airport ID to coordinate mapping
-static QMap<uint8_t, QGeoCoordinate> airportIdToCoord = {
-	{ 0x1a, QGeoCoordinate(35.4161, 51.1522) }, // Imam Khomeini (Iran)
-	{ 0x1b, QGeoCoordinate(32.7508, 51.8613) }, // Shahid Beheshti (Iran)
-	{ 0x1c, QGeoCoordinate(23.5933, 58.2844) }, // Muscat (Oman)
-	{ 0x1d, QGeoCoordinate(41.2753, 28.7519) }, // Istanbul (Turkey)
-	{ 0x1e, QGeoCoordinate(29.5392, 52.5898) }, // Shiraz (Iran)
-	{ 0x1f, QGeoCoordinate(26.4711, 49.7979) }, // King Fahd (Saudi Arabia)
-	{ 0x3a, QGeoCoordinate(25.2532, 55.3657) }, // Dubai (UAE)
-	{ 0xa2, QGeoCoordinate(25.2731, 51.6081) }, // Hamad (Qatar)
-	{ 0x10, QGeoCoordinate(29.2266, 47.9689) }, // Kuwait (Kuwait)
-	{ 0x2b, QGeoCoordinate(36.2376, 43.9632) }, // Erbil (Iraq)
-	{ 0x3c, QGeoCoordinate(25.6700, 32.7066) } // Luxor (Egypt)
-};
-
 RadarDataReceiver::RadarDataReceiver(QObject *parent)
 	: QObject(parent)
 	, socket(new QTcpSocket(this))
@@ -132,10 +117,6 @@ Object *RadarDataReceiver::parsePacket(const QByteArray &packet)
 	obj->setAltitude(altitude);
 	obj->setStatus("active");
 	obj->setTimestamp(QDateTime::currentDateTimeUtc());
-	// Set destination coordinates using lookup table
-	QGeoCoordinate dstCoord = airportIdToCoord.value(dstAirport, QGeoCoordinate());
-	obj->setDestinationLatitude(dstCoord.latitude());
-	obj->setDestinationLongitude(dstCoord.longitude());
 
 	// Map typeId to type string and name (see README Table 2)
 	switch (typeId)

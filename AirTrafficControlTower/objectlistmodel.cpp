@@ -67,10 +67,14 @@ void ObjectListModel::updateObject(int index, Object *obj)
 		return;
 
 	Object *existing = m_objects.at(index);
+
+		// Update with new data
 	existing->setType(obj->getType());
 	existing->setSourceAirport(obj->getSourceAirport());
 	existing->setDestinationAirport(obj->getDestinationAirport());
+	existing->setPreviousLatitude(existing->getLatitude());
 	existing->setLatitude(obj->getLatitude());
+	existing->setPreviousLongitude(existing->getLongitude());
 	existing->setLongitude(obj->getLongitude());
 	existing->setAltitude(obj->getAltitude());
 	existing->setCapacity(obj->getCapacity());

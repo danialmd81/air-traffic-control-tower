@@ -16,7 +16,9 @@ public:
 	QString getType() const { return type; }
 	QString getSourceAirport() const { return sourceAirport; }
 	QString getDestinationAirport() const { return destinationAirport; }
+	double getPreviousLatitude() const { return previousLatitude; }
 	double getLatitude() const { return latitude; }
+	double getPreviousLongitude() const { return previousLongitude; }
 	double getLongitude() const { return longitude; }
 	double getAltitude() const { return altitude; }
 	int getCapacity() const { return capacity; }
@@ -24,15 +26,15 @@ public:
 	QString getStatus() const { return status; }
 	QDateTime getTimestamp() const { return timestamp; }
 	QString getName() const { return name; }
-	double getDestinationLatitude() const { return destinationLatitude; }
-	double getDestinationLongitude() const { return destinationLongitude; }
 
 	// Setters
 	void setId(const QString &value) { id = value; }
 	void setType(const QString &value) { type = value; }
 	void setSourceAirport(const QString &value) { sourceAirport = value; }
 	void setDestinationAirport(const QString &value) { destinationAirport = value; }
+	void setPreviousLatitude(double value) { previousLatitude = value; }
 	void setLatitude(double value) { latitude = value; }
+	void setPreviousLongitude(double value) { previousLongitude = value; }
 	void setLongitude(double value) { longitude = value; }
 	void setAltitude(double value) { altitude = value; }
 	void setCapacity(int value) { capacity = value; }
@@ -40,15 +42,15 @@ public:
 	void setStatus(const QString &value) { status = value; }
 	void setTimestamp(const QDateTime &value) { timestamp = value; }
 	void setName(const QString &value) { name = value; }
-	void setDestinationLatitude(double value) { destinationLatitude = value; }
-	void setDestinationLongitude(double value) { destinationLongitude = value; }
 
 private:
 	QString id; // Unique identifier
 	QString type; // "airplane", "jet", "helicopter"
 	QString sourceAirport; // Source airport
 	QString destinationAirport; // Destination airport
+	double previousLatitude;
 	double latitude; // Latitude (degrees)
+	double previousLongitude;
 	double longitude; // Longitude (degrees)
 	double altitude; // Altitude (meters or feet)
 	int capacity; // Passenger or cargo capacity
@@ -57,8 +59,6 @@ private:
 	QDateTime timestamp; // Last update time
 
 	QString name; // Optional: Name
-	double destinationLatitude = 0.0;
-	double destinationLongitude = 0.0;
 };
 
 #endif // OBJECT_H

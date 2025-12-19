@@ -116,6 +116,40 @@ void MainWindow::onObjectReceived(Object *obj)
 		// Delete the incoming obj to avoid memory leak, since model already owns the old one
 		delete obj;
 	}
+
+	// --- Add this block to update details if the item is selected ---
+	QListWidgetItem *currentItem = ui->listWidget->currentItem();
+	if (currentItem)
+	{
+		constexpr int ObjectPointerRole = Qt::UserRole + 1;
+		Object *currentObj = reinterpret_cast<Object *>(currentItem->data(ObjectPointerRole).value<quintptr>());
+		if (currentObj && currentObj->getId() == obj->getId())
+		{
+			// Reuse the details update logic from on_listWidget_itemDoubleClicked
+			ui->label->setText(tr(currentObj->getName().toStdString().c_str()));
+			QString details;
+			details += tr("<b>ID:</b> %1<br>").arg(currentObj->getId());
+			details += tr("<b>Type:</b> %1<br>").arg(currentObj->getType());
+			details += tr("<b>Source Airport:</b> %1<br>").arg(currentObj->getSourceAirport());
+			details += tr("<b>Destination Airport:</b> %1<br>").arg(currentObj->getDestinationAirport());
+			details += tr("<b>Latitude:</b> %1<br>").arg(currentObj->getLatitude());
+			details += tr("<b>Longitude:</b> %1<br>").arg(currentObj->getLongitude());
+			details += tr("<b>Altitude:</b> %1<br>").arg(currentObj->getAltitude());
+			details += tr("<b>Status:</b> %1<br>").arg(currentObj->getStatus());
+			details += tr("<b>Timestamp:</b> %1<br>").arg(currentObj->getTimestamp().toString(Qt::ISODate));
+			ui->textBrowser->setHtml(details);
+
+			QObject *rootObject = ui->quickWidget->rootObject();
+			if (rootObject)
+			{
+				double latitude = currentObj->getLatitude();
+				double longitude = currentObj->getLongitude();
+
+				rootObject->setProperty("mapLatitude", latitude);
+				rootObject->setProperty("mapLongitude", longitude);
+			}
+		}
+	}
 }
 
 void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
