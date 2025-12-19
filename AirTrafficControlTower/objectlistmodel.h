@@ -27,6 +27,7 @@ public:
 	void addObject(Object *obj);
 	Object *getObject(int index) const;
 	void updateObject(int index, Object *obj);
+	Q_INVOKABLE void removeObject(int row);
 
 private:
 	QList<Object *> m_objects;

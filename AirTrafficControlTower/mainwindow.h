@@ -3,6 +3,7 @@
 
 #include <QListWidget>
 #include <QMainWindow>
+#include <QTimer>
 
 #include "object.h"
 #include "objectlistmodel.h"
@@ -28,6 +29,8 @@ private slots:
 	void on_actionSet_Port_triggered();
 	void on_actionStart_triggered();
 
+	void checkObjectTimeouts();
+
 	void onObjectReceived(Object *obj);
 
 	void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
@@ -41,5 +44,10 @@ private:
 	int port;
 
 	ObjectListModel *objectListModel;
+
+	QTimer *objectTimeoutTimer;
+	int objectTimeoutMs = 3000; // Example: 3 seconds timeout
+
+	void updateDetails(Object *obj);
 };
 #endif // MAINWINDOW_H

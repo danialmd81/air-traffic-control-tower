@@ -7,6 +7,7 @@
 #include <QQmlEngine>
 #include <QQuickItem>
 #include <QQuickWidget>
+#include <QTimer>
 
 MainWindow::MainWindow(QWidget *parent)
 	: QMainWindow(parent)
@@ -21,6 +22,11 @@ MainWindow::MainWindow(QWidget *parent)
 	ui->quickWidget->setSource(QUrl("qrc:/main.qml"));
 
 	connect(radarReceiver, &RadarDataReceiver::objectReceived, this, &MainWindow::onObjectReceived);
+
+	objectTimeoutTimer = new QTimer(this);
+	objectTimeoutTimer->setInterval(1000); // Check every 1 second
+	connect(objectTimeoutTimer, &QTimer::timeout, this, &MainWindow::checkObjectTimeouts);
+	objectTimeoutTimer->start();
 }
 
 MainWindow::~MainWindow()
@@ -72,6 +78,28 @@ void MainWindow::on_actionStart_triggered()
 	}
 }
 
+void MainWindow::checkObjectTimeouts()
+{
+	QDateTime now = QDateTime::currentDateTimeUtc();
+	for (int i = objectListModel->rowCount() - 1; i >= 0; --i)
+	{
+		Object *obj = objectListModel->getObject(i);
+		if (obj && obj->getTimestamp().msecsTo(now) > objectTimeoutMs)
+		{
+			// Remove from model
+			objectListModel->removeObject(i);
+			// Remove from QListWidget
+			delete ui->listWidget->takeItem(i);
+		}
+	}
+	// Optionally, clear details if the selected object was removed
+	if (!ui->listWidget->currentItem())
+	{
+		ui->label->clear();
+		ui->textBrowser->clear();
+	}
+}
+
 void MainWindow::onObjectReceived(Object *obj)
 {
 	if (!obj)
@@ -117,7 +145,7 @@ void MainWindow::onObjectReceived(Object *obj)
 		delete obj;
 	}
 
-	// --- Add this block to update details if the item is selected ---
+	// update details if the item is selected
 	QListWidgetItem *currentItem = ui->listWidget->currentItem();
 	if (currentItem)
 	{
@@ -125,29 +153,7 @@ void MainWindow::onObjectReceived(Object *obj)
 		Object *currentObj = reinterpret_cast<Object *>(currentItem->data(ObjectPointerRole).value<quintptr>());
 		if (currentObj && currentObj->getId() == obj->getId())
 		{
-			// Reuse the details update logic from on_listWidget_itemDoubleClicked
-			ui->label->setText(tr(currentObj->getName().toStdString().c_str()));
-			QString details;
-			details += tr("<b>ID:</b> %1<br>").arg(currentObj->getId());
-			details += tr("<b>Type:</b> %1<br>").arg(currentObj->getType());
-			details += tr("<b>Source Airport:</b> %1<br>").arg(currentObj->getSourceAirport());
-			details += tr("<b>Destination Airport:</b> %1<br>").arg(currentObj->getDestinationAirport());
-			details += tr("<b>Latitude:</b> %1<br>").arg(currentObj->getLatitude());
-			details += tr("<b>Longitude:</b> %1<br>").arg(currentObj->getLongitude());
-			details += tr("<b>Altitude:</b> %1<br>").arg(currentObj->getAltitude());
-			details += tr("<b>Status:</b> %1<br>").arg(currentObj->getStatus());
-			details += tr("<b>Timestamp:</b> %1<br>").arg(currentObj->getTimestamp().toString(Qt::ISODate));
-			ui->textBrowser->setHtml(details);
-
-			QObject *rootObject = ui->quickWidget->rootObject();
-			if (rootObject)
-			{
-				double latitude = currentObj->getLatitude();
-				double longitude = currentObj->getLongitude();
-
-				rootObject->setProperty("mapLatitude", latitude);
-				rootObject->setProperty("mapLongitude", longitude);
-			}
+			updateDetails(currentObj);
 		}
 	}
 }
@@ -158,30 +164,31 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 	{
 		constexpr int ObjectPointerRole = Qt::UserRole + 1;
 		Object *obj = reinterpret_cast<Object *>(item->data(ObjectPointerRole).value<quintptr>());
-		if (obj)
-		{
-			ui->label->setText(tr(obj->getName().toStdString().c_str()));
-			QString details;
-			details += tr("<b>ID:</b> %1<br>").arg(obj->getId());
-			details += tr("<b>Type:</b> %1<br>").arg(obj->getType());
-			details += tr("<b>Source Airport:</b> %1<br>").arg(obj->getSourceAirport());
-			details += tr("<b>Destination Airport:</b> %1<br>").arg(obj->getDestinationAirport());
-			details += tr("<b>Latitude:</b> %1<br>").arg(obj->getLatitude());
-			details += tr("<b>Longitude:</b> %1<br>").arg(obj->getLongitude());
-			details += tr("<b>Altitude:</b> %1<br>").arg(obj->getAltitude());
-			details += tr("<b>Status:</b> %1<br>").arg(obj->getStatus());
-			details += tr("<b>Timestamp:</b> %1<br>").arg(obj->getTimestamp().toString(Qt::ISODate));
-			ui->textBrowser->setHtml(details);
+		updateDetails(obj);
+	}
+}
 
-			QObject *rootObject = ui->quickWidget->rootObject();
-			if (rootObject)
-			{
-				double latitude = obj->getLatitude();
-				double longitude = obj->getLongitude();
+void MainWindow::updateDetails(Object *obj)
+{
+	if (!obj) return;
 
-				rootObject->setProperty("mapLatitude", latitude);
-				rootObject->setProperty("mapLongitude", longitude);
-			}
-		}
+	ui->label->setText(tr(obj->getName().toStdString().c_str()));
+	QString details;
+	details += tr("<b>ID:</b> %1<br>").arg(obj->getId());
+	details += tr("<b>Type:</b> %1<br>").arg(obj->getType());
+	details += tr("<b>Source Airport:</b> %1<br>").arg(obj->getSourceAirport());
+	details += tr("<b>Destination Airport:</b> %1<br>").arg(obj->getDestinationAirport());
+	details += tr("<b>Latitude:</b> %1<br>").arg(obj->getLatitude());
+	details += tr("<b>Longitude:</b> %1<br>").arg(obj->getLongitude());
+	details += tr("<b>Altitude:</b> %1<br>").arg(obj->getAltitude());
+	details += tr("<b>Status:</b> %1<br>").arg(obj->getStatus());
+	details += tr("<b>Timestamp:</b> %1<br>").arg(obj->getTimestamp().toString(Qt::ISODate));
+	ui->textBrowser->setHtml(details);
+
+	QObject *rootObject = ui->quickWidget->rootObject();
+	if (rootObject)
+	{
+		rootObject->setProperty("mapLatitude", obj->getLatitude());
+		rootObject->setProperty("mapLongitude", obj->getLongitude());
 	}
 }

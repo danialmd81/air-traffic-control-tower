@@ -68,7 +68,7 @@ void ObjectListModel::updateObject(int index, Object *obj)
 
 	Object *existing = m_objects.at(index);
 
-		// Update with new data
+	// Update with new data
 	existing->setType(obj->getType());
 	existing->setSourceAirport(obj->getSourceAirport());
 	existing->setDestinationAirport(obj->getDestinationAirport());
@@ -84,4 +84,13 @@ void ObjectListModel::updateObject(int index, Object *obj)
 	existing->setName(obj->getName());
 
 	emit dataChanged(this->index(index), this->index(index));
+}
+
+void ObjectListModel::removeObject(int row)
+{
+	if (row < 0 || row >= m_objects.size())
+		return;
+	beginRemoveRows(QModelIndex(), row, row);
+	delete m_objects.takeAt(row); // If you own the pointer, delete it
+	endRemoveRows();
 }
