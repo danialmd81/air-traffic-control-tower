@@ -9,29 +9,18 @@ Item {
     Plugin {
         id: mapPlugin
         name: "osm"
+
         PluginParameter {
             name: "osm.useragent"
             value: "AirTrafficControlTower"
         }
-        // Use the official OSM tile server for general use
         PluginParameter {
             name: "osm.mapping.host"
-            value: "https://tile.openstreetmap.org/"
+            value: "https://cartodb-basemaps-a.global.ssl.fastly.net/"
         }
-        // Copyright notice for OSM
         PluginParameter {
             name: "osm.mapping.copyright"
-            value: "© OpenStreetMap contributors"
-        }
-        // Optional: Use public OSRM routing server (or leave default)
-        PluginParameter {
-            name: "osm.routing.host"
-            value: "https://router.project-osrm.org/route/v1"
-        }
-        // Optional: Use Nominatim for geocoding (or leave default)
-        PluginParameter {
-            name: "osm.geocoding.host"
-            value: "https://nominatim.openstreetmap.org/"
+            value: "© OpenStreetMap contributors, © CartoDB"
         }
     }
 
@@ -44,6 +33,8 @@ Item {
         plugin: mapPlugin
         anchors.fill: parent
         center: QtPositioning.coordinate(root.mapLatitude, root.mapLongitude)
+        // activeMapType: supportedMapTypes[supportedMapTypes.length - 1]
+        activeMapType: supportedMapTypes[3]
 
         // onSupportedMapTypesChanged: {
         //         for (var i = 0; i < supportedMapTypes.length; ++i) {
@@ -53,7 +44,6 @@ Item {
         //             }
         //         }
         //     }
-        activeMapType: supportedMapTypes[3]
 
         MapItemView {
             model: objectListModel
