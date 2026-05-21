@@ -30,16 +30,12 @@ MainWindow::MainWindow(QWidget *parent)
 }
 
 MainWindow::~MainWindow()
-{
-	delete ui;
-}
+{ delete ui; }
 
 void MainWindow::on_actionSet_IP_triggered()
 {
 	bool ok = false;
-	QString ip = QInputDialog::getText(this, tr("Set Radar IP"),
-		tr("Enter radar server IP address:"), QLineEdit::Normal,
-		"127.0.0.1", &ok);
+	QString ip = QInputDialog::getText(this, tr("Set Radar IP"), tr("Enter radar server IP address:"), QLineEdit::Normal, "127.0.0.1", &ok);
 	if (ok && !ip.isEmpty())
 	{
 		this->ipAddress = ip;
@@ -50,8 +46,7 @@ void MainWindow::on_actionSet_IP_triggered()
 void MainWindow::on_actionSet_Port_triggered()
 {
 	bool ok = false;
-	int port = QInputDialog::getInt(this, tr("Set Radar Port"),
-		tr("Enter radar server port:"), 8080, 1, 65535, 1, &ok);
+	int port = QInputDialog::getInt(this, tr("Set Radar Port"), tr("Enter radar server port:"), 8080, 1, 65535, 1, &ok);
 	if (ok)
 	{
 		this->port = port;
@@ -151,7 +146,8 @@ void MainWindow::onObjectReceived(Object *obj)
 	{
 		constexpr int ObjectPointerRole = Qt::UserRole + 1;
 		Object *currentObj = reinterpret_cast<Object *>(currentItem->data(ObjectPointerRole).value<quintptr>());
-		if (currentObj && currentObj->getId() == obj->getId())
+		// if (currentObj && currentObj->getId() == obj->getId())
+		if (currentObj)
 		{
 			updateDetails(currentObj);
 		}
@@ -170,7 +166,8 @@ void MainWindow::on_listWidget_itemDoubleClicked(QListWidgetItem *item)
 
 void MainWindow::updateDetails(Object *obj)
 {
-	if (!obj) return;
+	if (!obj)
+		return;
 
 	ui->label->setText(tr(obj->getName().toStdString().c_str()));
 	QString details;

@@ -126,3 +126,7 @@ To test the developed software, radar data will be sent to the system from anoth
 - High volumes of incoming data.
 
 Upon completion, the project requires the submission of the **code** and the **deployed Windows program**.
+
+### 8. Demo
+
+![Demo](./res/res.gif)
